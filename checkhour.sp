@@ -6,7 +6,7 @@
 #pragma newdecls required
 
 
-#define STEAMAPIURL "https://api.steampowered.com"
+#define STEAMAPIURL "https://api.steamchina.com"
 #define CHECK_HOUR_API "IPlayerService/GetOwnedGames/v0001/?key=%s&include_played_free_games=1&appids_filter[0]=730&steamid=%s&format=json"
 #define PLUGIN_VERSION "1.0"
 
@@ -31,15 +31,22 @@ public void OnPluginStart()
 	
 	g_cSteamApiKey = CreateConVar("check_apikey", "", "填写steam apikey可参考buff获取");
 	g_cHour = CreateConVar("check_hour", "300", "允许多少小时以上的玩家进入");
+	
+	AutoExecConfig(true, "checkhour");
 }
 
 public void OnClientAuthorized(int client, const char[] auth)
 {
 	if (!IsValidClient(client))return;
+	char steam[40];
+	if(!GetClientAuthId(client, AuthId_SteamID64, steam, sizeof(steam))){
+		KickClient(client, "steam认证失败!");
+	}
+	
 	HTTPClient http = new HTTPClient(STEAMAPIURL);
 	char api[255],apiKey[64];
 	g_cSteamApiKey.GetString(apiKey, sizeof(apiKey));
-	Format(api, sizeof(api), CHECK_HOUR_API, apiKey, auth);
+	Format(api, sizeof(api), CHECK_HOUR_API, apiKey, steam);
 	http.Get(api, OnHourReceived, client);
 }
 
