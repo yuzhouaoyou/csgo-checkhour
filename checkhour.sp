@@ -41,6 +41,7 @@ public void OnClientAuthorized(int client, const char[] auth)
 	char steam[40];
 	if(!GetClientAuthId(client, AuthId_SteamID64, steam, sizeof(steam))){
 		KickClient(client, "steam认证失败!");
+		return;
 	}
 	
 	HTTPClient http = new HTTPClient(STEAMAPIURL);
